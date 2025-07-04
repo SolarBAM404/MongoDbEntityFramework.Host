@@ -1,19 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 using MongoDbEntityFramework.Settings;
 
 namespace MongoDbEntityFramework.Host;
 
 public static class HostingExtensions
 {
-    public static void AddMongoDbContext<TContext>(this IServiceCollection services, DbSettings dbSettings)
+    public static IServiceCollection AddMongoDbContext<TContext>(this IServiceCollection services, DbSettings dbSettings)
         where TContext : DbContext, new()
     {
-        services.AddSingleton<TContext>(provider => 
-        {
-            TContext context = new();
-            context.Initialize(dbSettings);
-            return context;
-        });
+        services.AddSingleton(new MongoClient(dbSettings.ConnString));
+        services.AddScoped<TContext>();
+        return services;
     }
     
 }
