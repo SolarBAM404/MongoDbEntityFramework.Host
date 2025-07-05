@@ -10,6 +10,7 @@ public static class HostingExtensions
         where TContext : DbContext, new()
     {
         services.AddSingleton(new MongoClient(dbSettings.ConnString));
+        services.AddSingleton(dbSettings);
         services.AddScoped<TContext>();
         return services;
     }
