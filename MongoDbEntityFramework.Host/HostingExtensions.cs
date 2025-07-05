@@ -7,11 +7,14 @@ namespace MongoDbEntityFramework.Host;
 public static class HostingExtensions
 {
     public static IServiceCollection AddMongoDbContext<TContext>(this IServiceCollection services, DbSettings dbSettings)
-        where TContext : DbContext, new()
+        where TContext : DbContext
     {
         services.AddSingleton(new MongoClient(dbSettings.ConnString));
-        services.AddSingleton(dbSettings);
-        services.AddScoped<TContext>();
+        services.AddScoped<TContext>(sp =>
+        {
+            MongoClient client = sp.GetRequiredService<MongoClient>();
+            return (TContext)Activator.CreateInstance(typeof(TContext), client, dbSettings)!;
+        });
         return services;
     }
     
